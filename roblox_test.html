@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тест: Roblox Studio, уроки 7–8</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; background: #f2f2f2; color: #222; margin: 0; padding: 16px; }
+  .box { max-width: 640px; margin: 0 auto; background: #fff; border: 2px solid #444; border-radius: 8px; padding: 20px; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: #666; margin-bottom: 16px; font-size: 15px; }
+  .progress { font-size: 14px; color: #666; margin-bottom: 8px; }
+  .bar { height: 10px; background: #ddd; border-radius: 5px; margin-bottom: 16px; }
+  .bar div { height: 100%; background: #2b7de9; border-radius: 5px; width: 0; }
+  .q { font-size: 20px; margin-bottom: 14px; line-height: 1.4; }
+  code { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 18px; }
+  pre { background: #eee; padding: 10px; border-radius: 6px; font-size: 17px; margin: 0 0 14px; }
+  .opt { display: block; width: 100%; text-align: left; font-size: 18px; padding: 12px; margin-bottom: 10px;
+         background: #fff; border: 2px solid #888; border-radius: 6px; cursor: pointer; font-family: inherit; }
+  .opt:hover { background: #eef4ff; }
+  .opt.right { background: #cfeccf; border-color: #2e8b2e; }
+  .opt.wrong { background: #f6d0d0; border-color: #c03030; }
+  .opt:disabled { cursor: default; }
+  .note { margin: 12px 0; padding: 10px; background: #fff7d6; border: 1px solid #d8c36a; border-radius: 6px; display: none; font-size: 16px; }
+  .btn { font-size: 18px; padding: 10px 22px; background: #2b7de9; color: #fff; border: none; border-radius: 6px; cursor: pointer; display: none; }
+  .result { text-align: center; display: none; }
+  .result .score { font-size: 40px; margin: 10px 0; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Roblox Studio</h1>
+  <div class="sub">Урок 7: Скрипт та змінні · Урок 8: Шлях до об'єкта, колірні моделі</div>
+
+  <div id="quiz">
+    <div class="progress" id="progress"></div>
+    <div class="bar"><div id="bar"></div></div>
+    <div class="q" id="question"></div>
+    <pre id="code" style="display:none"></pre>
+    <div id="options"></div>
+    <div class="note" id="note"></div>
+    <button class="btn" id="next">Далі</button>
+  </div>
+
+  <div class="result" id="result">
+    <h1>Тест завершено!</h1>
+    <div class="score" id="score"></div>
+    <p id="msg"></p>
+    <button class="btn" id="again" style="display:inline-block">Пройти ще раз</button>
+  </div>
+</div>
+
+<script>
+var questions = [
+  { q: "Що таке скрипт у Roblox Studio?",
+    a: ["Набір команд (код), який говорить, що має робити гра чи об'єкт", "Картинка для неба", "Назва кольору", "Кнопка, щоб зберегти гру"],
+    c: 0, n: "Скрипт — це програма з командами. Він «розказує» об'єктам, що робити." },
+  { q: "Якою мовою програмування пишуть скрипти в Roblox Studio?",
+    a: ["Lua (Luau)", "Word", "Paint", "Chrome"],
+    c: 0, n: "Roblox використовує мову Lua (точніше, її версію Luau)." },
+  { q: "Що таке змінна?",
+    a: ["Іменована «коробочка», у якій зберігається значення", "Новий об'єкт у Workspace", "Звук у грі", "Інструмент для малювання"],
+    c: 0, n: "Змінна має ім'я, а всередині — значення: число, слово чи щось інше." },
+  { q: "З якого слова зазвичай починається створення змінної в Luau?",
+    code: "___ speed = 10",
+    a: ["local", "print", "wait", "color"],
+    c: 0, n: "Слово local створює змінну: local speed = 10" },
+  { q: "Що зробить цей рядок?",
+    code: 'print("Привіт")',
+    a: ["Виведе слово Привіт у вікні Output", "Зафарбує деталь у червоний", "Видалить скрипт", "Створить нову змінну Привіт"],
+    c: 0, n: "Команда print виводить текст у вікно Output — зручно перевіряти, чи працює код." },
+  { q: "Яке число виведе цей код?",
+    code: "local coins = 5\ncoins = coins + 1\nprint(coins)",
+    a: ["6", "5", "1", "coins"],
+    c: 0, n: "Спочатку coins = 5, потім додаємо 1 і виходить 6." },
+  { q: "Що таке шлях до об'єкта?",
+    a: ["Адреса, яка показує, де об'єкт лежить у вікні Explorer", "Дорога, якою ходить персонаж", "Колір об'єкта", "Швидкість об'єкта"],
+    c: 0, n: "Шлях — це як адреса будинку: по ній скрипт знаходить потрібний об'єкт." },
+  { q: "Деталь Part лежить у Workspace. Який шлях до неї правильний?",
+    a: ["workspace.Part", "Part.workspace", "workspace Part", "Part = workspace"],
+    c: 0, n: "Спочатку головна папка, потім крапка, потім назва об'єкта: workspace.Part" },
+  { q: "З яких трьох кольорів складається колірна модель RGB?",
+    a: ["Червоний, зелений, синій", "Червоний, жовтий, чорний", "Помаранчевий, рожевий, білий", "Синій, жовтий, фіолетовий"],
+    c: 0, n: "R — Red (червоний), G — Green (зелений), B — Blue (синій)." },
+  { q: "Який колір дасть цей код?",
+    code: "Color3.fromRGB(255, 0, 0)",
+    a: ["Червоний", "Зелений", "Синій", "Чорний"],
+    c: 0, n: "Перше число — червоний. 255 — це максимум, а зеленого і синього нема. Виходить червоний." }
+];
+
+var cur = 0, score = 0, answered = false, order = [];
+
+function shuffle(arr) {
+  for (var i = arr.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  return arr;
+}
+
+function show() {
+  answered = false;
+  var item = questions[cur];
+  document.getElementById("progress").textContent = "Питання " + (cur + 1) + " з " + questions.length;
+  document.getElementById("bar").style.width = (cur / questions.length * 100) + "%";
+  document.getElementById("question").textContent = item.q;
+  var codeEl = document.getElementById("code");
+  if (item.code) { codeEl.textContent = item.code; codeEl.style.display = "block"; }
+  else { codeEl.style.display = "none"; }
+  document.getElementById("note").style.display = "none";
+  document.getElementById("next").style.display = "none";
+
+  order = shuffle([0, 1, 2, 3]);
+  var box = document.getElementById("options");
+  box.innerHTML = "";
+  order.forEach(function (idx) {
+    var b = document.createElement("button");
+    b.className = "opt";
+    b.textContent = item.a[idx];
+    b.onclick = function () { choose(b, idx); };
+    b.setAttribute("data-idx", idx);
+    box.appendChild(b);
+  });
+}
+
+function choose(btn, idx) {
+  if (answered) return;
+  answered = true;
+  var item = questions[cur];
+  var buttons = document.querySelectorAll(".opt");
+  buttons.forEach(function (b) {
+    b.disabled = true;
+    if (parseInt(b.getAttribute("data-idx")) === item.c) b.classList.add("right");
+  });
+  if (idx === item.c) { score++; }
+  else { btn.classList.add("wrong"); }
+  var note = document.getElementById("note");
+  note.textContent = (idx === item.c ? "Правильно! " : "Не зовсім. ") + item.n;
+  note.style.display = "block";
+  var next = document.getElementById("next");
+  next.textContent = (cur === questions.length - 1) ? "Дізнатися результат" : "Далі";
+  next.style.display = "inline-block";
+}
+
+document.getElementById("next").onclick = function () {
+  cur++;
+  if (cur < questions.length) { show(); }
+  else { finish(); }
+};
+
+function finish() {
+  document.getElementById("quiz").style.display = "none";
+  document.getElementById("result").style.display = "block";
+  document.getElementById("score").textContent = score + " з " + questions.length;
+  var m = score >= 9 ? "Чудово! Ти справжній програміст!" :
+          score >= 6 ? "Добре! Ще трохи повтори уроки — і буде ідеально." :
+                       "Нічого страшного! Перегляньте уроки ще раз і спробуйте знову.";
+  document.getElementById("msg").textContent = m;
+}
+
+document.getElementById("again").onclick = function () {
+  cur = 0; score = 0;
+  document.getElementById("result").style.display = "none";
+  document.getElementById("quiz").style.display = "block";
+  show();
+};
+
+show();
+</script>
+</body>
+</html>
